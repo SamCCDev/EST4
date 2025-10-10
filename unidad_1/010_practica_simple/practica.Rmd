@@ -14,17 +14,14 @@ editor_options:
 
 # Librerias
 ```{r librerias}
-
-# library(mrgsolve)
 library(ggplot2)
-
 library(dplyr)
 ```
 
 # Letura de datos
 
 ```{r}
-data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/010_practica_simple/archive")
+data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/010_practica_simple/archive"  )
 data_file <- file.path(data_path, "vgsales.csv")
 data.vg.raw <- read.csv(data_file,
                  stringsAsFactors = F,na.strings = ".",header = T,sep=",")
@@ -48,7 +45,7 @@ summary(data.vg)
 ```{r}
 str(data.vg.raw)
 unique(data.vg.raw$Year)
-filter(data.vg.raw, Year=="N/A")
+head(filter(data.vg.raw, Year=="N/A"))
 
 ```
 
@@ -75,44 +72,63 @@ print(round(porcentaje_na, 2))
 ```
 
 
-
 ```{r}
-unique(data.vg$Publisher)
+length(unique(data.vg$Publisher))
 filter(data.vg, Publisher==" ")
 
 ```
 
 A año le faltan 271 valores (aprox 1,63%). Dado que este porcentajee es muy pequeño, la estrategia más segura y sencilla es eliminar estas filas. Intentar 'adivinar' (imputar) el año o la editorial podría generar interferencias y llevar a conclusiones incorrectas. Queremos que nuestro análisis se base en datos completos y precisos. Usaremos .dropna() para eliminar las filas que contienen valores NaN en las columnas especificadas.
 
+Este reporte lo veré en GITHUB
 
 
 ```{r}
 # DataFrame de ejemplo con missing values
 
 print("DataFrame original:")
-print(data.vg)
+print(head(data.vg))
 cat("Filas originales:", nrow(data.vg), "\n\n")
 
 # Método 1: na.omit() - Elimina filas con cualquier NA
 df_sin_na <- na.omit(data.vg)
 print("Con na.omit():")
-print(df_sin_na)
+print(head(df_sin_na))
 cat("Filas después de na.omit():", nrow(df_sin_na), "\n\n")
 
 # Método 2: complete.cases() - Más control
 df_completo <- data.vg[complete.cases(data.vg), ]
 print("Con complete.cases():")
-print(df_completo)
+print(head(df_completo))
 cat("Filas después de complete.cases():", nrow(df_completo), "\n")
 
+```
+
+```{r}
+data.vg  <- data.vg[complete.cases(data.vg), ]
+dim(data.vg)
 ```
 
 
 # Tendencia Central
 
 ```{r}
-unique(data.vg$Platform)
+summary(data.vg$Global_Sales)
+hist(data.vg$Global_Sales)
 ```
+```{r}
+hist(filter(data.vg,Global_Sales < 5)$Global_Sales)
+```
+```{r}
+set.seed(13)
+N <- dim(data.vg)[1]
+indices_muestra <- sample(1:N,200,replace = TRUE)
+data.muestra<-data.vg[indices_muestra, ]
+summary(data.muestra$Global_Sales)
+
+```
+
+
 
 Graficos
 
@@ -123,86 +139,23 @@ df <- filter(data.vg,NA_Sales<2.5)
 # Histograma agrupado por categoría
 ggplot( df , aes(x = NA_Sales)) +
   geom_histogram(position = "dodge", alpha = 0.7, bins = 20) +
-  labs(title = "Histograma Agrupado de Ventas por Año",
+  labs(title = "Histograma Agrupado de Ventas por Anio",
        x = "Ventas",
        y = "Frecuencia") +
   theme_minimal()
 
 ```
+Población:
 
 ```{r}
-# Establecer la semilla para reproducibilidad
-set.seed(200)
+summary(df)
+```
+Muestreo:
 
-# Extraer una muestra aleatoria de 300 observaciones
-data_sample <- sample_n(data.vg.raw, 300)
-
-# Mostrar las primeras filas de la muestra
-head(data_sample)
-
-# Verificar el tamaño de la muestra
-cat("Número de filas en la muestra:", nrow(data_sample), "\n")
-
-#######
-
-# Seleccionar solo las columnas numéricas de la muestra
-numeric_vars_sample <- data_sample %>%
-  select_if(is.numeric)
-
-# Calcular la media para cada variable numérica en la muestra
-sample_means <- sapply(numeric_vars_sample, mean, na.rm = TRUE)
-print("Media de la muestra:")
-print(sample_means)
-
-# Calcular la desviación estándar para cada variable numérica en la muestra
-sample_sds <- sapply(numeric_vars_sample, sd, na.rm = TRUE)
-print("Desviación estándar de la muestra:")
-print(sample_sds)
-
-#####
-
-# Seleccionar solo las columnas numéricas de la población
-numeric_vars_population <- df_completo %>%
-  select_if(is.numeric)
-
-# Calcular la media para la población
-population_means <- sapply(numeric_vars_population, mean, na.rm = TRUE)
-print("Media de la población:")
-print(population_means)
-
-# Calcular la desviación estándar para la población
-population_sds <- sapply(numeric_vars_population, sd, na.rm = TRUE)
-print("Desviación estándar de la población:")
-print(population_sds)
-
-# --- CÓDIGO CORREGIDO ---
-
-# 1. Identificar las columnas numéricas UNA SOLA VEZ desde el dataframe completo.
-numeric_cols <- names(df_completo)[sapply(df_completo, is.numeric)]
-
-# Imprimir las columnas que se analizarán para estar seguros
-print("Columnas numéricas a analizar:")
-print(numeric_cols)
-
-# 2. Calcular estadísticas para la POBLACIÓN usando esa lista de columnas
-population_means <- sapply(df_completo[numeric_cols], mean, na.rm = TRUE)
-population_sds <- sapply(df_completo[numeric_cols], sd, na.rm = TRUE)
-
-# 3. Calcular estadísticas para la MUESTRA usando EXACTAMENTE la misma lista
-sample_means <- sapply(data_sample[numeric_cols], mean, na.rm = TRUE)
-sample_sds <- sapply(data_sample[numeric_cols], sd, na.rm = TRUE)
-
-# 4. Crear el dataframe de comparación (ahora no dará error)
-comparison_df <- data.frame(
-  Population_Mean = population_means,
-  Sample_Mean = sample_means,
-  Population_SD = population_sds,
-  Sample_SD = sample_sds
-)
-
-# 5. Mostrar la tabla de comparación
-print("Tabla de comparación:")
-print(comparison_df)
+```{r}
+set.seed(123)
+indices_muestra <- sample(1:5,2,replace = FALSE)
+df[indices_muestra,]
 
 ```
 
