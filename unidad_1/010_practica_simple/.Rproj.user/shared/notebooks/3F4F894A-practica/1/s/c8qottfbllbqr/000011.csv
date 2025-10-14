@@ -1,6 +1,0 @@
-"0","length(unique(data.vg$Publisher))"
-"1","[1]"
-"1"," 579"
-"1","
-"
-"0","head(filter(data.vg, Publisher=="" ""))"

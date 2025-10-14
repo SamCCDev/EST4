@@ -1,1 +1,0 @@
-"0","hist(filter(data.vg,Global_Sales < 5)$Global_Sales)"
