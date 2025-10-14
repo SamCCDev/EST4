@@ -262,7 +262,7 @@ length(unique(data.vg$Publisher))
     ## [1] 579
 
 ``` r
-filter(data.vg, Publisher==" ")
+head(filter(data.vg, Publisher==" "))
 ```
 
     ##  [1] Rank         Name         Platform     Year         Genre       
@@ -467,7 +467,7 @@ Muestreo:
 ``` r
 set.seed(123)
 indices_muestra <- sample(1:5,2,replace = FALSE)
-df[indices_muestra,]
+head(df[indices_muestra,])
 ```
 
     ##   Rank      Name Platform Year  Genre       Publisher NA_Sales EU_Sales
