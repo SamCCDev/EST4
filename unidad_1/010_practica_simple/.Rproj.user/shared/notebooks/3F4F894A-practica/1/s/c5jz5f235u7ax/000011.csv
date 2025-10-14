@@ -1,0 +1,5 @@
+"0","data_path <- file.path(""C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/010_practica_simple/archive""  )"
+"0","data_file <- file.path(data_path, ""vgsales.csv"")"
+"0","data.vg.raw <- read.csv(data_file,"
+"0","                 stringsAsFactors = F,na.strings = ""."",header = T,sep="","")"
+"0","head(data.vg.raw)"

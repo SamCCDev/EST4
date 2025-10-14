@@ -538,7 +538,7 @@ print(&quot;Porcentaje de NA por columna:&quot;)</code></pre>
 ##         0.00         0.00         0.00         0.00         0.00</code></pre>
 <pre class="r"><code>length(unique(data.vg$Publisher))</code></pre>
 <pre><code>## [1] 579</code></pre>
-<pre class="r"><code>filter(data.vg, Publisher==&quot; &quot;)</code></pre>
+<pre class="r"><code>head(filter(data.vg, Publisher==&quot; &quot;))</code></pre>
 <pre><code>##  [1] Rank         Name         Platform     Year         Genre       
 ##  [6] Publisher    NA_Sales     EU_Sales     JP_Sales     Other_Sales 
 ## [11] Global_Sales
@@ -673,7 +673,7 @@ Población:</p>
 <p>Muestreo:</p>
 <pre class="r"><code>set.seed(123)
 indices_muestra &lt;- sample(1:5,2,replace = FALSE)
-df[indices_muestra,]</code></pre>
+head(df[indices_muestra,])</code></pre>
 <pre><code>##   Rank      Name Platform Year  Genre       Publisher NA_Sales EU_Sales
 ## 3   79 Wii Party      Wii 2010   Misc        Nintendo     1.79     3.53
 ## 2   78   FIFA 16      PS4 2015 Sports Electronic Arts     1.11     6.06
