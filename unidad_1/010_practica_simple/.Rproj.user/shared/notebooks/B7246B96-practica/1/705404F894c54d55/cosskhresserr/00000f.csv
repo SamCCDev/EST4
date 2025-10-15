@@ -1,0 +1,7 @@
+"0","data.vg  <- data.vg[complete.cases(data.vg), ]"
+"0","dim(data.vg)"
+"1","[1]"
+"1"," 16327"
+"1","    11"
+"1","
+"

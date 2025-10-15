@@ -1,26 +1,26 @@
 {
-    "id": "BA7231BC",
+    "id": "CEA50E57",
     "path": "C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/010_practica_simple/practica.md",
     "project_path": "practica.md",
     "type": "markdown",
-    "hash": "3168026050",
+    "hash": "3516076046",
     "contents": "",
     "dirty": false,
-    "created": 1760461753553.0,
+    "created": 1760543768711.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "24,48",
-        "scrollLine": "11"
+        "cursorPosition": "205,107",
+        "scrollLine": "196"
     },
     "folds": "",
-    "lastKnownWriteTime": 1760467744,
+    "lastKnownWriteTime": 1760545068,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1760467744199,
+    "last_content_update": 1760545068116,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -130,7 +130,7 @@ summary(data.muestra$Global_Sales)
 
 
 
-Graficos
+# Graficos
 
 
 ```{r}
@@ -159,3 +159,59 @@ head(df[indices_muestra,])
 
 ```
 
+## --- Frecuencias relativas y histograma combinado ---
+
+```{r}
+# --- Calcular frecuencias relativas y graficar histograma combinado ---
+
+# Población
+poblacion <- df$NA_Sales
+
+# Crear una muestra aleatoria de la población
+set.seed(123)
+muestra <- sample(poblacion, size = 200, replace = TRUE)
+
+# --- Calcular frecuencias relativas ---
+
+# Extender el rango un poco para cubrir cualquier valor extremo
+min_val <- min(c(poblacion, muestra), na.rm = TRUE)
+max_val <- max(c(poblacion, muestra), na.rm = TRUE)
+
+# Añadimos un pequeño margen para evitar exclusiones
+min_val <- min_val - 1e-6
+max_val <- max_val + 1e-6
+
+# Definir breaks (15 clases aproximadamente)
+breaks <- seq(min_val, max_val, length.out = 15)
+
+# Calcular histogramas sin graficar
+freq_poblacion <- hist(poblacion, breaks = breaks, plot = FALSE, include.lowest = TRUE, right = TRUE)
+freq_muestra <- hist(muestra, breaks = breaks, plot = FALSE, include.lowest = TRUE, right = TRUE)
+
+# Calcular frecuencias relativas
+rel_freq_poblacion <- freq_poblacion$counts / sum(freq_poblacion$counts)
+rel_freq_muestra <- freq_muestra$counts / sum(freq_muestra$counts)
+
+# Crear data frame combinado
+df_rel <- data.frame(
+  Clase = freq_poblacion$mids,
+  Poblacion = rel_freq_poblacion,
+  Muestra = rel_freq_muestra
+)
+
+# --- Graficar histograma combinado ---
+library(ggplot2)
+
+ggplot(df_rel, aes(x = Clase)) +
+  geom_bar(aes(y = Poblacion, fill = "Población"), stat = "identity", alpha = 0.6, position = "identity") +
+  geom_bar(aes(y = Muestra, fill = "Muestra"), stat = "identity", alpha = 0.6, position = "dodge") +
+  scale_fill_manual(values = c("Población" = "steelblue", "Muestra" = "orange")) +
+  labs(
+    title = "Comparación de Frecuencias Relativas - Población vs. Muestra",
+    x = "Ventas en Norteamérica (NA_Sales)",
+    y = "Frecuencia Relativa",
+    fill = "Grupo"
+  ) +
+  theme_minimal()
+
+```
