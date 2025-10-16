@@ -1,0 +1,3 @@
+"0","set.seed(123)"
+"0","indices_muestra <- sample(1:5,2,replace = FALSE)"
+"0","head(df[indices_muestra,])"

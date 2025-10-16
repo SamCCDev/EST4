@@ -1,0 +1,331 @@
+---
+title: "Basic Example"
+author: "Samuel Castillo"
+date: "2025-10-01"
+output: 
+  github_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_format = "all") })
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Librerias
+```{r librerias}
+library(ggplot2)
+library(dplyr)
+```
+
+# Letura de datos
+
+```{r}
+data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/020_tarea/archive"  )
+data_file <- file.path(data_path, "vgsales.csv")
+data.vg.raw <- read.csv(data_file,
+                 stringsAsFactors = F,na.strings = ".",header = T,sep=",")
+head(data.vg.raw)
+str(data.vg.raw)
+```
+
+```{r}
+summary(data.vg.raw)
+```
+
+# Limpieza de datos
+
+
+```{r}
+data.vg <- data.vg.raw 
+data.vg$Platform <- factor(data.vg$Platform)
+data.vg$Year <- as.numeric(data.vg$Year)
+summary(data.vg)
+```
+```{r}
+str(data.vg.raw)
+unique(data.vg.raw$Year)
+head(filter(data.vg.raw, Year=="N/A"))
+
+```
+
+
+```{r}
+unique(data.vg$Platform)
+filter(data.vg, Name=="FIFA 15")
+hist(data.vg$NA_Sales )
+```
+
+Calculemos la proporcion de los datos missings Esto nos ayudará a decidir la estrategia (borrar vs. llenar)
+
+```{r}
+# Contar NA por columna
+na_por_columna <- colSums(is.na(data.vg))
+print("NA por columna:")
+print(na_por_columna)
+
+# Porcentaje de NA por columna
+porcentaje_na <- colMeans(is.na(data.vg)) * 100
+print("Porcentaje de NA por columna:")
+print(round(porcentaje_na, 2))
+
+```
+
+
+```{r}
+length(unique(data.vg$Publisher))
+head(filter(data.vg, Publisher==" "))
+
+```
+
+A año le faltan 271 valores (aprox 1,63%). Dado que este porcentajee es muy pequeño, la estrategia más segura y sencilla es eliminar estas filas. Intentar 'adivinar' (imputar) el año o la editorial podría generar interferencias y llevar a conclusiones incorrectas. Queremos que nuestro análisis se base en datos completos y precisos. Usaremos .dropna() para eliminar las filas que contienen valores NaN en las columnas especificadas.
+
+Este reporte lo veré en GITHUB
+
+
+```{r}
+# DataFrame de ejemplo con missing values
+
+print("DataFrame original:")
+print(head(data.vg))
+cat("Filas originales:", nrow(data.vg), "\n\n")
+
+# Método 1: na.omit() - Elimina filas con cualquier NA
+df_sin_na <- na.omit(data.vg)
+print("Con na.omit():")
+print(head(df_sin_na))
+cat("Filas después de na.omit():", nrow(df_sin_na), "\n\n")
+
+# Método 2: complete.cases() - Más control
+df_completo <- data.vg[complete.cases(data.vg), ]
+print("Con complete.cases():")
+print(head(df_completo))
+cat("Filas después de complete.cases():", nrow(df_completo), "\n")
+
+```
+
+```{r}
+data.vg  <- data.vg[complete.cases(data.vg), ]
+dim(data.vg)
+```
+
+
+# Tendencia Central
+
+```{r}
+summary(data.vg$Global_Sales)
+hist(data.vg$Global_Sales)
+```
+```{r}
+hist(filter(data.vg,Global_Sales < 5)$Global_Sales)
+```
+```{r}
+set.seed(13)
+N <- dim(data.vg)[1]
+indices_muestra <- sample(1:N,200,replace = TRUE)
+data.muestra<-data.vg[indices_muestra, ]
+summary(data.muestra$Global_Sales)
+
+```
+
+
+
+# Graficos
+
+
+```{r}
+
+df <- filter(data.vg,NA_Sales<2.5)
+# Histograma agrupado por categoría
+ggplot( df , aes(x = NA_Sales)) +
+  geom_histogram(position = "dodge", alpha = 0.7, bins = 20) +
+  labs(title = "Histograma Agrupado de Ventas por Anio",
+       x = "Ventas",
+       y = "Frecuencia") +
+  theme_minimal()
+
+```
+Población:
+
+```{r}
+summary(df)
+```
+Muestreo:
+
+```{r}
+set.seed(123)
+indices_muestra <- sample(1:5,2,replace = FALSE)
+head(df[indices_muestra,])
+
+```
+
+# --- Frecuencias relativas y histograma combinado ---
+
+```{r}
+# --- Calcular frecuencias relativas y graficar histograma combinado ---
+
+# Población
+poblacion <- df$NA_Sales
+
+# Crear una muestra aleatoria de la población
+set.seed(123)
+muestra <- sample(poblacion, size = 200, replace = TRUE)
+
+# --- Calcular frecuencias relativas ---
+
+# Extender el rango un poco para cubrir cualquier valor extremo
+min_val <- min(c(poblacion, muestra), na.rm = TRUE)
+max_val <- max(c(poblacion, muestra), na.rm = TRUE)
+
+# Añadimos un pequeño margen para evitar exclusiones
+min_val <- min_val - 1e-6
+max_val <- max_val + 1e-6
+
+# Definir breaks (15 clases aproximadamente)
+breaks <- seq(min_val, max_val, length.out = 15)
+
+# Calcular histogramas sin graficar
+freq_poblacion <- hist(poblacion, breaks = breaks, plot = FALSE, include.lowest = TRUE, right = TRUE)
+freq_muestra <- hist(muestra, breaks = breaks, plot = FALSE, include.lowest = TRUE, right = TRUE)
+
+# Calcular frecuencias relativas
+rel_freq_poblacion <- freq_poblacion$counts / sum(freq_poblacion$counts)
+rel_freq_muestra <- freq_muestra$counts / sum(freq_muestra$counts)
+
+# Crear data frame combinado
+df_rel <- data.frame(
+  Clase = freq_poblacion$mids,
+  Poblacion = rel_freq_poblacion,
+  Muestra = rel_freq_muestra
+)
+
+# --- Graficar histograma combinado ---
+library(ggplot2)
+
+ggplot(df_rel, aes(x = Clase)) +
+  geom_bar(aes(y = Poblacion, fill = "Población"), stat = "identity", alpha = 0.6, position = "identity") +
+  geom_bar(aes(y = Muestra, fill = "Muestra"), stat = "identity", alpha = 0.6, position = "dodge") +
+  scale_fill_manual(values = c("Población" = "steelblue", "Muestra" = "orange")) +
+  labs(
+    title = "Comparación de Frecuencias Relativas - Población vs. Muestra",
+    x = "Ventas en Norteamérica (NA_Sales)",
+    y = "Frecuencia Relativa",
+    fill = "Grupo"
+  ) +
+  theme_minimal()
+
+```
+## Comparación de las distribuciones poblacionales y muestrales
+
+```{r}
+#### Preparación de la Población de Interés y Creación de `Peso_NA` ####
+
+# Cargamos la librería dplyr por si no está activa
+library(dplyr)
+
+# Filtramos la población de interés
+poblacion_interes <- data.vg %>%
+  filter(Global_Sales < 2 & Global_Sales > 0)
+
+# Creación de la nueva variable 'Peso_NA'
+poblacion_interes <- poblacion_interes %>%
+  mutate(Peso_NA = NA_Sales / Global_Sales)
+
+# Vemos un resumen rápido de la nueva variable en la población
+summary(poblacion_interes$Peso_NA)
+
+```
+
+```{r}
+#### 1| ELABORACION DE LAS MUESTRAS ####
+
+# Establecemos una semilla para la reproducibilidad
+set.seed(42)
+
+# Muestra 1 de tamaño 500
+muestra_1 <- poblacion_interes %>%
+  sample_n(500)
+
+# Muestra 2 de tamaño 500
+muestra_2 <- poblacion_interes %>%
+  sample_n(500)
+```
+
+```{r}
+# Estadísticas básicas de la Muestra 1
+cat("Estadísticas básicas de la Muestra 1 para Peso_NA:\n")
+summary(muestra_1$Peso_NA)
+
+# Histograma y curva de densidad para la Muestra 1
+ggplot(muestra_1, aes(x = Peso_NA)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "steelblue", alpha = 0.7) +
+  geom_density(color = "blue", size = 1) +
+  labs(title = "Distribución de Peso_NA - Muestra 1",
+       x = "Peso de Ventas en Norteamérica (Peso_NA)",
+       y = "Densidad") +
+  theme_minimal()
+
+```
+```{r}
+# Estadísticas básicas de la Muestra 2
+cat("\nEstadísticas básicas de la Muestra 2 para Peso_NA:\n")
+summary(muestra_2$Peso_NA)
+
+# Histograma y curva de densidad para la Muestra 2
+ggplot(muestra_2, aes(x = Peso_NA)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "orange", alpha = 0.7) +
+  geom_density(color = "darkred", size = 1) +
+  labs(title = "Distribución de Peso_NA - Muestra 2",
+       x = "Peso de Ventas en Norteamérica (Peso_NA)",
+       y = "Densidad") +
+  theme_minimal()
+```
+
+
+```{r}
+#### 2| COMPARACION DE RESULTADOS ####
+
+
+
+# Estadísticas básicas de la Población de Interés para comparar
+cat("\nEstadísticas básicas de la Población de Interés para Peso_NA:\n")
+summary(poblacion_interes$Peso_NA)
+
+# Gráfico comparativo de las 3 densidades
+ggplot() +
+  geom_density(data = poblacion_interes, aes(x = Peso_NA, color = "Población"), size = 1.2) +
+  geom_density(data = muestra_1, aes(x = Peso_NA, color = "Muestra 1"), size = 1, linetype = "dashed") +
+  geom_density(data = muestra_2, aes(x = Peso_NA, color = "Muestra 2"), size = 1, linetype = "dotted") +
+  labs(title = "Comparación de Distribuciones: Población vs. Muestras",
+       x = "Peso de Ventas en Norteamérica (Peso_NA)",
+       y = "Densidad",
+       color = "Grupo") +
+  scale_color_manual(values = c("Población" = "black", "Muestra 1" = "blue", "Muestra 2" = "darkred")) +
+  theme_minimal()
+```
+
+## --- Conclusiones y Observaciones del trabajo ---
+
+```{r}
+#### 3| CONCLUSIONES ####
+
+
+cat(
+  "# 5. Conclusiones y Observaciones\n\n",
+  "# * Representatividad de las muestras: Las estadísticas descriptivas (media, mediana, cuartiles) de ambas muestras son muy similares a las de la población total de interés. \n",
+  sprintf("#   Por ejemplo, la media de la población es de aproximadamente %.2f, mientras que en las muestras es de %.2f y %.2f. \n", 
+          mean(poblacion_interes$Peso_NA), 
+          mean(muestra_1$Peso_NA), 
+          mean(muestra_2$Peso_NA)),
+  "#   Esto indica que el muestreo aleatorio simple ha sido efectivo y las muestras son representativas.\n\n",
+  "# * Forma de la distribución: El gráfico comparativo de densidades muestra que las curvas de ambas muestras siguen de cerca la forma de la distribución de la población. \n",
+  "#   Esto confirma visualmente que las muestras han capturado las características principales de la población.\n\n",
+  "# * Análisis de la variable `Peso_NA`: La distribución de `Peso_NA` está sesgada hacia la derecha, con una alta concentración de valores entre 0 y 0.8. \n",
+  "#   Esto sugiere que para la mayoría de los videojuegos con ventas globales menores a 2 millones, las ventas en Norteamérica representan entre el 0% y el 80% del total.\n\n",
+  "# * Picos de interés: Se observan picos notables en la distribución. Hay una alta densidad cerca de 0.5, lo que podría indicar que muchos juegos tienen un reparto de ventas bastante equitativo entre Norteamérica y el resto del mundo. \n",
+  "#   También se observa un pico en 1.0, que corresponde a juegos que se vendieron exclusivamente en Norteamérica. Hay otro pico menor cercano a 0, para juegos con muy pocas o nulas ventas en esa región.\n"
+)
+```
