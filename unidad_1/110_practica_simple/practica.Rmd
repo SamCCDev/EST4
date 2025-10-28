@@ -3,11 +3,8 @@ title: "Basic Example"
 author: "Samuel Castillo"
 date: "2025-10-01"
 output: 
-  github_document:
-    toc: true
-  html_document:
-    toc: true
-    toc_float: true
+  github_document: default
+  html_document: default
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_format = "all") })
 editor_options: 
@@ -24,7 +21,7 @@ library(dplyr)
 # Letura de datos
 
 ```{r}
-data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/020_tarea/archive"  )
+data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/110_practica_simple/archive"  )
 data_file <- file.path(data_path, "vgsales.csv")
 data.vg.raw <- read.csv(data_file,
                  stringsAsFactors = F,na.strings = ".",header = T,sep=",")
@@ -162,7 +159,7 @@ head(df[indices_muestra,])
 
 ```
 
-# --- Frecuencias relativas y histograma combinado ---
+## --- Frecuencias relativas y histograma combinado ---
 
 ```{r}
 # --- Calcular frecuencias relativas y graficar histograma combinado ---
@@ -217,115 +214,4 @@ ggplot(df_rel, aes(x = Clase)) +
   ) +
   theme_minimal()
 
-```
-## Comparación de las distribuciones poblacionales y muestrales
-
-```{r}
-#### Preparación de la Población de Interés y Creación de `Peso_NA` ####
-
-# Cargamos la librería dplyr por si no está activa
-library(dplyr)
-
-# Filtramos la población de interés
-poblacion_interes <- data.vg %>%
-  filter(Global_Sales < 2 & Global_Sales > 0)
-
-# Creación de la nueva variable 'Peso_NA'
-poblacion_interes <- poblacion_interes %>%
-  mutate(Peso_NA = NA_Sales / Global_Sales)
-
-# Vemos un resumen rápido de la nueva variable en la población
-summary(poblacion_interes$Peso_NA)
-
-```
-
-```{r}
-#### 1| ELABORACION DE LAS MUESTRAS ####
-
-# Establecemos una semilla para la reproducibilidad
-set.seed(42)
-
-# Muestra 1 de tamaño 500
-muestra_1 <- poblacion_interes %>%
-  sample_n(500)
-
-# Muestra 2 de tamaño 500
-muestra_2 <- poblacion_interes %>%
-  sample_n(500)
-```
-
-```{r}
-# Estadísticas básicas de la Muestra 1
-cat("Estadísticas básicas de la Muestra 1 para Peso_NA:\n")
-summary(muestra_1$Peso_NA)
-
-# Histograma y curva de densidad para la Muestra 1
-ggplot(muestra_1, aes(x = Peso_NA)) +
-  geom_histogram(aes(y = ..density..), bins = 30, fill = "steelblue", alpha = 0.7) +
-  geom_density(color = "blue", size = 1) +
-  labs(title = "Distribución de Peso_NA - Muestra 1",
-       x = "Peso de Ventas en Norteamérica (Peso_NA)",
-       y = "Densidad") +
-  theme_minimal()
-
-```
-```{r}
-# Estadísticas básicas de la Muestra 2
-cat("\nEstadísticas básicas de la Muestra 2 para Peso_NA:\n")
-summary(muestra_2$Peso_NA)
-
-# Histograma y curva de densidad para la Muestra 2
-ggplot(muestra_2, aes(x = Peso_NA)) +
-  geom_histogram(aes(y = ..density..), bins = 30, fill = "orange", alpha = 0.7) +
-  geom_density(color = "darkred", size = 1) +
-  labs(title = "Distribución de Peso_NA - Muestra 2",
-       x = "Peso de Ventas en Norteamérica (Peso_NA)",
-       y = "Densidad") +
-  theme_minimal()
-```
-
-
-```{r}
-#### 2| COMPARACION DE RESULTADOS ####
-
-
-
-# Estadísticas básicas de la Población de Interés para comparar
-cat("\nEstadísticas básicas de la Población de Interés para Peso_NA:\n")
-summary(poblacion_interes$Peso_NA)
-
-# Gráfico comparativo de las 3 densidades
-ggplot() +
-  geom_density(data = poblacion_interes, aes(x = Peso_NA, color = "Población"), size = 1.2) +
-  geom_density(data = muestra_1, aes(x = Peso_NA, color = "Muestra 1"), size = 1, linetype = "dashed") +
-  geom_density(data = muestra_2, aes(x = Peso_NA, color = "Muestra 2"), size = 1, linetype = "dotted") +
-  labs(title = "Comparación de Distribuciones: Población vs. Muestras",
-       x = "Peso de Ventas en Norteamérica (Peso_NA)",
-       y = "Densidad",
-       color = "Grupo") +
-  scale_color_manual(values = c("Población" = "black", "Muestra 1" = "blue", "Muestra 2" = "darkred")) +
-  theme_minimal()
-```
-
-## --- Conclusiones y Observaciones del trabajo ---
-
-```{r}
-#### 3| CONCLUSIONES ####
-
-
-cat(
-  "# 5. Conclusiones y Observaciones\n\n",
-  "# * Representatividad de las muestras: Las estadísticas descriptivas (media, mediana, cuartiles) de ambas muestras son muy similares a las de la población total de interés. \n",
-  sprintf("#   Por ejemplo, la media de la población es de aproximadamente %.2f, mientras que en las muestras es de %.2f y %.2f. \n", 
-          mean(poblacion_interes$Peso_NA), 
-          mean(muestra_1$Peso_NA), 
-          mean(muestra_2$Peso_NA)),
-  "#   Esto indica que el muestreo aleatorio simple ha sido efectivo y las muestras son representativas.\n\n",
-  "# * Forma de la distribución: El gráfico comparativo de densidades muestra que las curvas de ambas muestras siguen de cerca la forma de la distribución de la población. \n",
-  "#   Esto confirma visualmente que las muestras han capturado las características principales de la población.\n\n",
-  "# * Análisis de la variable `Peso_NA`: La distribución de `Peso_NA` está sesgada hacia la derecha, con una alta concentración de valores entre 0 y 0.8. \n",
-  "#   Esto sugiere que para la mayoría de los videojuegos con ventas globales menores a 2 millones, las ventas en Norteamérica representan entre el 0% y el 80% del total.\n\n",
-  "# * Picos de interés: Se observan picos notables en la distribución. Hay una alta densidad cerca de 0.5, lo que podría indicar que muchos juegos tienen un reparto de ventas bastante equitativo entre Norteamérica y el resto del mundo. \n",
-  "#   También se observa un pico en 1.0, que corresponde a juegos que se vendieron exclusivamente en Norteamérica. Hay otro pico menor cercano a 0, para juegos con muy pocas o nulas ventas en esa región.\n"
-)
 ```

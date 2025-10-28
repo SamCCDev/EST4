@@ -24,7 +24,7 @@ library(dplyr)
 # Letura de datos
 
 ```{r}
-data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/020_tarea/archive"  )
+data_path <- file.path("C:/Users/KoMeTa/OneDrive - Universidad Privada del Valle/CODES/EST4/unidad_1/120_tarea/archive"  )
 data_file <- file.path(data_path, "vgsales.csv")
 data.vg.raw <- read.csv(data_file,
                  stringsAsFactors = F,na.strings = ".",header = T,sep=",")
