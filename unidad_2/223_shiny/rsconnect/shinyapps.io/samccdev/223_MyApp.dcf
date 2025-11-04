@@ -1,0 +1,10 @@
+name: 223_MyApp
+title:
+username: samccdev
+account: samccdev
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15965694
+bundleId: 11131331
+url: https://samccdev.shinyapps.io/223_MyApp/
+version: 1
