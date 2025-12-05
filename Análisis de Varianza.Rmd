@@ -1,0 +1,78 @@
+---
+title: "Análisis de Varianza - Costos de Telefonía"
+author: "Samuel Castillo"
+date: "2023-12-04"
+output: html_document
+---
+## 1. LIBRERIAS
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+## . Cargar los datos
+Aquí paso los datos de la imagen a vectores para armar la tabla.
+
+```{r datos}
+# Datos copiados tal cual el problema:
+datos <- data.frame(
+  costo = c(27, 68, 308,   # A (Bajo, Medio, Alto)
+            24, 76, 326,   # B
+            31, 65, 312,   # C
+            23, 67, 300),  # D
+  nivel_uso = rep(c("20_Bajo", "150_Medio", "1000_Alto"), 4),
+  compania = rep(c("A", "B", "C", "D"), each = 3)
+)
+
+# Factores
+datos$compania <- as.factor(datos$compania)
+datos$nivel_uso <- as.factor(datos$nivel_uso)
+
+print("Vista previa de los datos:")
+print(datos)
+```
+
+## 3. ESTADISTICA DESCRIPTIVA
+
+```{r anova}
+# Resumen estadístico por compañía usando dplyr
+df_resumen <- datos %>%
+  group_by(compania) %>%
+  summarise(
+    Promedio = mean(costo),
+    Desviacion = sd(costo),
+    n = n()
+  )
+
+print("Resumen estadístico:")
+print(df_resumen)
+```
+
+## 4. GRAFICOS
+```{r}
+# Gráfico de cajas (Boxplot) con ggplot2
+grafico <- ggplot(datos, aes(x = compania, y = costo, fill = compania)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Comparación de costos por Compañía",
+       subtitle = "Se observa la varianza incluyendo los niveles de uso",
+       x = "Compañía",
+       y = "Costo ($)") +
+  theme_minimal()
+
+print(grafico)
+```
+
+## 5. ANOVA DE DOS VIAS (BLOQUES)
+```{r}
+# Importante: 'nivel_uso' debe ser un factor para actuar como bloque
+mi_anova2 <- aov(costo ~ compania + nivel_uso, data = datos)
+
+print("Tabla ANOVA (Diseño de Bloques):")
+summary(mi_anova2)
+```
+
+# 6. INTERPRETACION Y CONCLUSION (95% Confianza)
+Valor p para Compañía: ~0.239
+Valor alfa: 0.05
+
