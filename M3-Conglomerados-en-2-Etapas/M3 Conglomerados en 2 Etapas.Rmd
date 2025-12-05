@@ -1,0 +1,67 @@
+---
+title: "M3: Conglomerados en 2 Etapas"
+author: "Samuel Castillo"
+date: "2023-12-04"
+output: html_document
+---
+
+```{r}
+# 1. LIBRERIAS
+library(ggplot2)
+library(dplyr)
+library(SDaA)    # Contiene datos 'coots'
+library(survey)  # Para diseño muestral complejo
+```
+
+```{r}
+# 2. CARGAR DATOS
+data(coots)
+```
+
+```{r}
+# ---------------------------------------------------------
+# PREGUNTA 1: DESCRIPCIÓN DEL MUESTREO (Imprimimos la respuesta)
+# ---------------------------------------------------------
+cat("1. DESCRIPCIÓN DEL MUESTREO:\n")
+cat("Es un muestreo por conglomerados en 2 etapas porque:\n")
+cat(" - Etapa 1 (UPM): Se seleccionan Nidadas (Clutches) completas.\n")
+cat(" - Etapa 2 (USM): Dentro de cada nidada, se eligen solo 2 huevos para medir.\n\n")
+```
+
+```{r}
+# ---------------------------------------------------------
+# GRAFICO: Visualización de datos (Huevos vs Medias de Nido)
+# ---------------------------------------------------------
+grafico <- ggplot(coots, aes(x = as.factor(clutch), y = volume)) +
+  geom_point(alpha = 0.5, color = "gray60") + # Huevos individuales
+  stat_summary(fun = mean, geom = "point", color = "red", size = 2, shape = 18) + # Medias
+  labs(title = "Volumen de huevos (Conglomerados)", 
+       subtitle = "Gris: Individual | Rojo: Media del nido",
+       x = "Nidadas", y = "Volumen") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+
+print(grafico)
+```
+
+```{r}
+# ---------------------------------------------------------
+# PREGUNTA 2 y 3: ESTIMACIÓN DE MEDIA Y ERROR ESTÁNDAR
+# ---------------------------------------------------------
+# Opción A: Usando librería 'survey' (Forma correcta y rápida)
+# id = ~clutch indica que el conglomerado es la nidada
+diseno <- svydesign(id = ~clutch, data = coots)
+resultado <- svymean(~volume, diseno)
+
+cat("--- RESULTADOS (Librería survey) ---\n")
+print(resultado)
+
+# Opción B: Cálculo Manual (Para investigar la fórmula)
+# SE = raiz(Varianza_entre_medias / n_nidadas)
+medias_nidadas <- tapply(coots$volume, coots$clutch, mean)
+se_manual <- sqrt(var(medias_nidadas) / length(medias_nidadas))
+
+cat("\n--- RESULTADOS (Cálculo Manual) ---\n")
+cat("Promedio Estimado:", mean(medias_nidadas), "\n")
+cat("Error Estándar (SE):", se_manual, "\n")
+```
